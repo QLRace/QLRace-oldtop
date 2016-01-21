@@ -1,29 +1,41 @@
-import requests
-import os
+#!/usr/bin/env python3
+"""
+Gets all race records from ql.leeto.fi with ranks recalculated/fixed.
+"""
+
 import json
+import operator
+import os
+import requests
+
+base_path = "oldtop"
+os.makedirs(base_path, exist_ok=True)
 
 data = requests.get("http://ql.leeto.fi/api/race").json()
 maps = sorted([x["MAP"] for x in data["data"]["maps"]])
 print("Found {} maps".format(len(maps)))
 
-os.makedirs("oldtop", exist_ok=True)
-maps_path = "oldtop/maps.json"
+maps_path = os.path.normpath("{}/maps.json".format(base_path))
 with open(maps_path, "w") as maps_file:
     data = {"maps": maps}
     json.dump(data, maps_file)
     print("wrote {}".format(maps_path))
+
 
 mode_params = [{}, {"weapons": "off"}, {"ruleset": "vql", "weapons": "on"},
                {"ruleset": "vql", "weapons": "off"}]
 
 for map_name in maps:
     print("Getting data for {}".format(map_name))
-    os.makedirs("oldtop/{}".format(map_name), exist_ok=True)
+    map_path = os.path.normpath("{}/{}".format(base_path, map_name))
+    os.makedirs(map_path, exist_ok=True)
 
     for mode in range(4):
         params = mode_params[mode]
         data = requests.get("http://ql.leeto.fi/api/race/maps/{}".format(map_name), params=params).json()
         records = data["data"]["scores"]
+        records.sort(key=operator.itemgetter("GAME_TIMESTAMP"))
+        records.sort(key=operator.itemgetter("SCORE"))
 
         prev_time = 0
         prev_rank = 0
@@ -48,8 +60,8 @@ for map_name in maps:
             prev_rank = rank
             i += 1
 
-        json_path = "oldtop/{}/{}.json".format(map_name, mode)
-        with open(json_path, "w") as json_file:
+        records_path = os.path.normpath("{}/{}.json".format(map_path, mode))
+        with open(records_path, "w") as records_file:
             data = {"records": records}
-            json.dump(data, json_file)
-            print("Wrote {}".format(json_path))
+            json.dump(data, records_file)
+            print("Wrote {}".format(records_path))
