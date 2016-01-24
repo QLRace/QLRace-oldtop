@@ -21,7 +21,6 @@ with open(maps_path, "w") as maps_file:
     json.dump(data, maps_file)
     print("wrote {}".format(maps_path))
 
-
 mode_params = [{}, {"weapons": "off"}, {"ruleset": "vql", "weapons": "on"},
                {"ruleset": "vql", "weapons": "off"}]
 
@@ -39,7 +38,6 @@ for map_name in maps:
 
         prev_time = 0
         prev_rank = 0
-        i = 1
         for index, record in enumerate(records, start=1):
             record.pop("MAP")
             record.pop("PLAYER_NICK")
