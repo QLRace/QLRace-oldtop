@@ -40,7 +40,7 @@ for map_name in maps:
         prev_time = 0
         prev_rank = 0
         i = 1
-        for record in records:
+        for index, record in enumerate(records, start=1):
             record.pop("MAP")
             record.pop("PLAYER_NICK")
             record.pop("PUBLIC_ID")
@@ -53,12 +53,11 @@ for map_name in maps:
             if prev_time == record["time"]:
                 rank = prev_rank
             else:
-                rank = i
+                rank = index
             record["rank"] = rank
 
             prev_time = record["time"]
             prev_rank = rank
-            i += 1
 
         records_path = os.path.normpath("{}/{}.json".format(map_path, mode))
         with open(records_path, "w") as records_file:
