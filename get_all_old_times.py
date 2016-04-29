@@ -33,8 +33,7 @@ for map_name in maps:
         params = mode_params[mode]
         data = requests.get("http://ql.leeto.fi/api/race/maps/{}".format(map_name), params=params).json()
         records = data["data"]["scores"]
-        records.sort(key=operator.itemgetter("GAME_TIMESTAMP"))
-        records.sort(key=operator.itemgetter("SCORE"))
+        records.sort(key=operator.itemgetter("SCORE", "GAME_TIMESTAMP"))
 
         prev_time = 0
         prev_rank = 0
